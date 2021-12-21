@@ -23,13 +23,16 @@ const styles = {
     fontWeight: '600',
     fontSize : normalize(14),
   },
+  today : {
+    color: '#BB1C2A'
+  },
   dayBlocked: {
     backgroundColor: 'rgb(255, 255, 255)'
   },
   daySelected: {
     backgroundColor: "#4597A8",
   },
-
+  
   dayDisabledText: {
     color: 'gray',
     opacity: 0.5,
@@ -46,19 +49,18 @@ const styles = {
     borderTopRightRadius: 20,
     borderBottomRightRadius: 20,
   },
-  borderContainer : {
-    width:40,
-    height:40,
-    alignItems:'center',
-    justifyContent:'center',
+  borderContainer : { 
+    width:40, 
+    height:40, 
+    alignItems:'center', 
+    justifyContent:'center', 
   }
 };
 
 export default class Week extends Component{
-
+  
   render(){
     const {
-      customStyles = {},
       mode,
       date,
       startDate,
@@ -76,16 +78,16 @@ export default class Week extends Component{
     const endOfWeek = startOfWeek.clone().endOf('isoweek');
 
     moment.range(startOfWeek, endOfWeek).by('days', (day) => {
-
+      
       const onPress = () => {
         if (isDateBlocked(day)) {
           onDisableClicked(day);
         } else if (mode === 'range') {
           let isPeriodBlocked = false;
           const start = focusedInput === 'startDate' ? day : startDate;
-
+          
           const end = focusedInput === 'endDate' ? day : endDate;
-
+          
           if (start && end) {
             moment.range(start, end).by('days', (dayPeriod) => {
               if (isDateBlocked(dayPeriod)) isPeriodBlocked = true;
@@ -107,10 +109,10 @@ export default class Week extends Component{
             return day.isSameOrAfter(startDate, 'day') && day.isSameOrBefore(endDate, 'day');
           }
           return (startDate && day.isSame(startDate, 'day')) || (endDate && day.isSame(endDate, 'day'));
-        }
+        } 
         return date && day.isSame(date, 'day');
       };
-
+      
       const isDateSelected = () => {
         if (mode === 'single') {
           return currentDate && day.isSame(currentDate, 'day');
@@ -122,6 +124,11 @@ export default class Week extends Component{
       };
       const isDateEnd = () => {
         return endDate && day.isSame(endDate, 'day');
+      };
+
+      const isToday = () => {
+        const now = new Date();
+        return day.isSame(now, 'day');
       };
 
       const isBlocked = isDateBlocked(day);
@@ -142,19 +149,20 @@ export default class Week extends Component{
 
       const styleText = [
         styles.dayText,
-        customStyles.datePickerText,
         isBlocked && styles.dayDisabledText,
         isRangeSelected && daySelectedText,
         isSelected && daySelectedText,
+        isToday() && (!isSelected && !isRangeSelected) && styles.today,
       ];
-      const borderContainer = (mode === 'single') && isSelected
+
+      const borderContainer = (mode === 'single') && isSelected 
         ? [styles.borderContainer,
-          { borderRadius:20,
-            backgroundColor:
-              selectedBgColor
-              ? selectedBgColor
+          { borderRadius:20, 
+            backgroundColor: 
+              selectedBgColor 
+              ? selectedBgColor 
               : styles.daySelected.backgroundColor
-          }]
+          }] 
         : styles.borderContainer;
       days.push(
         <TouchableOpacity
@@ -163,7 +171,7 @@ export default class Week extends Component{
           onPress={onPress}
           disabled={isBlocked && !onDisableClicked}
         >
-          <View style={borderContainer}>
+          <View style={borderContainer}> 
             <Text style={styleText}>{day.date()}</Text>
           </View>
         </TouchableOpacity>
@@ -185,4 +193,4 @@ Week.propTypes = {
   onDatesChange: PropTypes.func,
   isDateBlocked: PropTypes.func,
   onDisableClicked: PropTypes.func
-};
+}
