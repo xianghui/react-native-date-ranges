@@ -31,7 +31,6 @@ export default class ComposePicker extends Component {
       modalVisible: false,
       allowPointerEvents: true,
       showContent: false,
-      selected: '',
       startDate: props.startDate ? props.startDate : null,
       endDate: props.endDate ? props.endDate : null,
       date: new Date(),
@@ -39,6 +38,16 @@ export default class ComposePicker extends Component {
       currentDate: moment()
     };
   }
+  componentDidUpdate(prevProps) {
+    if(this.props.startDate != prevProps.startDate
+      || this.props.endDate != prevProps.endDate)
+      {
+      this.setState({
+        startDate: this.props.startDate,
+        endDate: this.props.endDate,
+      })
+    }
+  } 
   isDateBlocked = date => {
     if (this.props.blockBefore) {
       return date.isBefore(moment(), 'day');
@@ -70,7 +79,6 @@ export default class ComposePicker extends Component {
     if (!this.props.mode || this.props.mode === 'single') {
       this.setState({
         showContent: true,
-        selected: this.state.currentDate.format(outFormat)
       });
       this.setModalVisible(false);
       if (typeof this.props.onConfirm === 'function') {
@@ -86,7 +94,6 @@ export default class ComposePicker extends Component {
       const end = this.state.endDate.format(outFormat);
       this.setState({
         showContent: true,
-        selected: `${start} ${this.props.dateSplitter} ${end}`
       });
       this.setModalVisible(false);
 
@@ -108,6 +115,19 @@ export default class ComposePicker extends Component {
     });
   };
   getTitleElement() {
+    const returnFormat = this.props.returnFormat || 'YYYY/MM/DD';
+    const outFormat = this.props.outFormat || 'LL';
+    let selected = "";
+    if (!this.props.mode || this.props.mode === 'single') {
+      selected =  this.state.currentDate.format(outFormat)
+    }
+
+    if (this.state.startDate && this.state.endDate) {
+      const start = this.state.startDate.format(outFormat);
+      const end = this.state.endDate.format(outFormat);
+      selected = `${start} ${this.props.dateSplitter} ${end}`
+    }
+
     const { placeholder, customStyles = {}, allowFontScaling } = this.props;
     const showContent = this.state.showContent;
     if (!showContent && placeholder) {
@@ -125,7 +145,7 @@ export default class ComposePicker extends Component {
         allowFontScaling={allowFontScaling}
         style={[styles.contentText, customStyles.contentText]}
       >
-        {this.state.selected}
+        {selected}
       </Text>
     );
   }
